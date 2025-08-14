@@ -31,7 +31,7 @@ tailor-measurement-management
    ```
 2. Navigate to the project directory:
    ```
-   cd tailor-measurement-management
+   cd TMS
    ```
 3. Install the dependencies:
    ```
