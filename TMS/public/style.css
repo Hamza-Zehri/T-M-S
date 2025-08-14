@@ -1,0 +1,237 @@
+/* Reset and base styling */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+  color: #333;
+  min-height: 100vh;
+  padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Container */
+.portal-container {
+  background: #ffffffee;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-width: 800px;
+  width: 100%;
+  padding: 40px 50px;
+  backdrop-filter: blur(4px);
+}
+
+/* Header */
+header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+header h1 {
+  font-size: 2.2rem;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+header p {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Forms */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+form input {
+  padding: 12px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+form input:focus {
+  border-color: #6a11cb;
+  outline: none;
+  background: #ffffff;
+}
+
+form button {
+  background: linear-gradient(45deg, #6a11cb, #2575fc);
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+form button:hover {
+  opacity: 0.9;
+}
+
+/* Search Box */
+#search-box {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 1rem;
+  outline: none;
+  transition: border 0.2s;
+}
+
+#search-box:focus {
+  border-color: #4f3cc9;
+}
+
+/* Customer List */
+#customers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* Colorful Cards */
+.customer-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.customer-card:hover {
+  transform: scale(1.02);
+}
+
+.customer-card strong {
+  font-size: 1.1rem;
+  color: #222;
+}
+
+.customer-card .measurements {
+  margin-top: 4px;
+  font-size: 0.95rem;
+  color: #444;
+}
+
+.customer-card button {
+  margin-left: 8px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.print-btn {
+  background: #00c9a7;
+}
+
+.print-btn:hover {
+  background: #00ac91;
+  transform: scale(1.05);
+}
+
+.delete-btn {
+  background: #ff416c;
+}
+
+.delete-btn:hover {
+  background: #e60044;
+  transform: scale(1.05);
+}
+
+/* Loading & Empty States */
+.loading, .empty {
+  text-align: center;
+  font-size: 1rem;
+  color: #555;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  margin-top: 40px;
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  z-index: 20;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+  background: #fff;
+  margin: 10% auto;
+  padding: 30px;
+  border-radius: 14px;
+  max-width: 500px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+.close {
+  position: absolute;
+  top: 12px;
+  right: 20px;
+  font-size: 28px;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.close:hover {
+  color: #000;
+}
+
+/* Modal Form */
+#edit-form input, #edit-form button {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .portal-container {
+    padding: 25px 20px;
+  }
+
+  .customer-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .customer-card > div:last-child {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+  }
+}

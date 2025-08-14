@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tailor Measurement System</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="portal-container">
+    <header>
+      <h1>👔 Tailor Measurement System</h1>
+      <p>Manage your customers and their measurements</p>
+    </header>
+    <main>
+      <input type="text" id="search-box" placeholder="Search by name or phone..." />
+      <form id="customer-form">
+        <input type="text" id="customer-name" placeholder="Customer Name" required />
+        <input type="number" id="customer-chest" placeholder="Chest (inches)" min="0" />
+        <input type="number" id="customer-shoulder" placeholder="Shoulder (inches)" min="0" />
+        <input type="number" id="customer-length" placeholder="Length (kameez)" min="0" />
+        <input type="number" id="customer-sleeve" placeholder="Sleeve Length" min="0" />
+        <input type="number" id="customer-shalwar-waist" placeholder="Shalwar Waist" min="0" />
+        <input type="number" id="customer-shalwar-length" placeholder="Shalwar Length" min="0" />
+        <input type="text" id="customer-phone" placeholder="Phone Number" />
+        <button type="submit">Add Customer</button>
+      </form>
+      <section id="customers-list"></section>
+    </main>
+    <footer>
+      <small>&copy; 2025 Tailor Measurement Management</small>
+    </footer>
+  </div>
+  <div id="edit-modal" class="modal" style="display:none;">
+    <div class="modal-content">
+      <span class="close" id="close-modal">&times;</span>
+      <h2>Edit Customer</h2>
+      <form id="edit-form">
+        <input type="text" id="edit-name" required />
+        <input type="number" id="edit-chest" placeholder="Chest (inches)" min="0" />
+        <input type="number" id="edit-shoulder" placeholder="Shoulder (inches)" min="0" />
+        <input type="number" id="edit-length" placeholder="Length (kameez)" min="0" />
+        <input type="number" id="edit-sleeve" placeholder="Sleeve Length" min="0" />
+        <input type="number" id="edit-shalwar-waist" placeholder="Shalwar Waist" min="0" />
+        <input type="number" id="edit-shalwar-length" placeholder="Shalwar Length" min="0" />
+        <input type="text" id="edit-phone" placeholder="Phone Number" />
+        <button type="submit">Save</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    const apiUrl = '/customers';
+    let editingId = null;
+    let searchTerm = '';
+
+    async function fetchCustomer(id) {
+      const res = await fetch(`${apiUrl}/${id}`);
+      return res.ok ? res.json() : null;
+    }
+
+    async function fetchCustomers() {
+      const customers = [];
+      for (let i = 1; i <= 20; i++) {
+        const c = await fetchCustomer(i);
+        if (c) customers.push(c);
+      }
+      return customers;
+    }
+
+    document.getElementById('search-box').addEventListener('input', function() {
+      searchTerm = this.value.trim().toLowerCase();
+      renderCustomers();
+    });
+
+    async function renderCustomers() {
+      const list = document.getElementById('customers-list');
+      list.innerHTML = '<div class="loading">Loading...</div>';
+      const customers = await fetchCustomers();
+      // Filter by search term
+      const filtered = customers.filter(c =>
+        c.name.toLowerCase().includes(searchTerm) ||
+        (c.phone && c.phone.toLowerCase().includes(searchTerm))
+      );
+      if (filtered.length === 0) {
+        list.innerHTML = '<div class="empty">No customers found.</div>';
+        return;
+      }
+      list.innerHTML = filtered.map(c => `
+        <div class="customer-card" onclick="showEditModal(${c.id})">
+          <div>
+            <strong>${c.name}</strong>
+            <div class="measurements">
+              Phone: ${c.phone ?? '-'}<br>
+              Chest: ${c.chest ?? '-'} |
+              Shoulder: ${c.shoulder ?? '-'} |
+              Length: ${c.length ?? '-'} |
+              Sleeve: ${c.sleeve ?? '-'} |
+              Shalwar Waist: ${c.shalwarWaist ?? '-'} |
+              Shalwar Length: ${c.shalwarLength ?? '-'}
+            </div>
+          </div>
+          <div>
+            <button class="print-btn" onclick="printCustomer(event, ${c.id})">Print</button>
+            <button class="delete-btn" onclick="deleteCustomer(event, ${c.id})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('customer-form').onsubmit = async e => {
+      e.preventDefault();
+      const name = document.getElementById('customer-name').value.trim();
+      const chest = Number(document.getElementById('customer-chest').value) || undefined;
+      const shoulder = Number(document.getElementById('customer-shoulder').value) || undefined;
+      const length = Number(document.getElementById('customer-length').value) || undefined;
+      const sleeve = Number(document.getElementById('customer-sleeve').value) || undefined;
+      const shalwarWaist = Number(document.getElementById('customer-shalwar-waist').value) || undefined;
+      const shalwarLength = Number(document.getElementById('customer-shalwar-length').value) || undefined;
+      const phone = document.getElementById('customer-phone').value.trim();
+      await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, chest, shoulder, length, sleeve, shalwarWaist, shalwarLength })
+      });
+      document.getElementById('customer-form').reset();
+      renderCustomers();
+    };
+
+    window.showEditModal = async function(id) {
+      event.stopPropagation();
+      editingId = id;
+      const c = await fetchCustomer(id);
+      if (!c) return;
+      document.getElementById('edit-name').value = c.name;
+      document.getElementById('edit-chest').value = c.chest ?? '';
+      document.getElementById('edit-shoulder').value = c.shoulder ?? '';
+      document.getElementById('edit-length').value = c.length ?? '';
+      document.getElementById('edit-sleeve').value = c.sleeve ?? '';
+      document.getElementById('edit-shalwar-waist').value = c.shalwarWaist ?? '';
+      document.getElementById('edit-shalwar-length').value = c.shalwarLength ?? '';
+      document.getElementById('edit-phone').value = c.phone ?? '';
+      document.getElementById('edit-modal').style.display = 'block';
+    };
+
+    document.getElementById('close-modal').onclick = function() {
+      document.getElementById('edit-modal').style.display = 'none';
+    };
+
+    document.getElementById('edit-form').onsubmit = async function(e) {
+      e.preventDefault();
+      const name = document.getElementById('edit-name').value.trim();
+      const chest = Number(document.getElementById('edit-chest').value) || undefined;
+      const shoulder = Number(document.getElementById('edit-shoulder').value) || undefined;
+      const length = Number(document.getElementById('edit-length').value) || undefined;
+      const sleeve = Number(document.getElementById('edit-sleeve').value) || undefined;
+      const shalwarWaist = Number(document.getElementById('edit-shalwar-waist').value) || undefined;
+      const shalwarLength = Number(document.getElementById('edit-shalwar-length').value) || undefined;
+      const phone = document.getElementById('edit-phone').value.trim();
+      await fetch(`${apiUrl}/${editingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, phone, chest, shoulder, length, sleeve, shalwarWaist, shalwarLength })
+      });
+      document.getElementById('edit-modal').style.display = 'none';
+      renderCustomers();
+    };
+
+    window.deleteCustomer = function(event, id) {
+      event.stopPropagation();
+      if (confirm('Delete this customer?')) {
+        fetch(`${apiUrl}/${id}`, { method: 'DELETE' }).then(renderCustomers);
+      }
+    };
+
+    window.printCustomer = async function(event, id) {
+      event.stopPropagation();
+      const c = await fetchCustomer(id);
+      if (!c) return;
+      const printWindow = window.open('', '', 'width=400,height=600');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print Measurements - ${c.name}</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 32px; }
+              h2 { color: #4f3cc9; }
+              .measurements { margin-top: 18px; font-size: 1.1rem; }
+              .label { font-weight: bold; }
+            </style>
+          </head>
+          <body>
+            <h2>Customer Measurements</h2>
+            <div><span class="label">Name:</span> ${c.name}</div>
+            <div><span class="label">Phone:</span> ${c.phone ?? '-'}</div>
+            <div class="measurements">
+              <div><span class="label">Chest:</span> ${c.chest ?? '-'}</div>
+              <div><span class="label">Shoulder:</span> ${c.shoulder ?? '-'}</div>
+              <div><span class="label">Length (kameez):</span> ${c.length ?? '-'}</div>
+              <div><span class="label">Sleeve Length:</span> ${c.sleeve ?? '-'}</div>
+              <div><span class="label">Shalwar Waist:</span> ${c.shalwarWaist ?? '-'}</div>
+              <div><span class="label">Shalwar Length:</span> ${c.shalwarLength ?? '-'}</div>
+            </div>
+            <br>
+            <button onclick="window.print()">Print</button>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    };
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      if (event.target == document.getElementById('edit-modal')) {
+        document.getElementById('edit-modal').style.display = 'none';
+      }
+    };
+
+    renderCustomers();
+  </script>
+</body>
+</html>
